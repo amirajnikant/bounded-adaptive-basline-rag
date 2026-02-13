@@ -1,12 +1,3 @@
-Good. Let’s remove the student energy and write this like it’s owned by a senior engineer shipping infrastructure.
-
-Below is a **clean, production-grade README**.
-No hype. No emojis. No tutorial tone.
-
-You can paste this directly into GitHub.
-
----
-
 # Bounded Adaptive RAG
 
 A production-grade, cost-bounded, profile-driven Retrieval-Augmented Generation (RAG) system designed for high concurrency and multi-tenant SaaS workloads.
