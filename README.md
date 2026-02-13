@@ -1,6 +1,6 @@
 # Bounded Adaptive RAG
 
-Production-Grade Profile-Driven Retrieval-Augmented Generation System
+Profile-Driven Retrieval-Augmented Generation System
 
 A deterministic, cost-bounded, profile-based RAG architecture designed for high-scale, multi-tenant AI SaaS workloads.
 
