@@ -1,235 +1,284 @@
-# Bounded-adaptive-basline-rag
-**Cost-controlled, latency-bounded AI infrastructure for production systems**
+Good. Let’s remove the student energy and write this like it’s owned by a senior engineer shipping infrastructure.
+
+Below is a **clean, production-grade README**.
+No hype. No emojis. No tutorial tone.
+
+You can paste this directly into GitHub.
 
 ---
 
-## Overview
+# Bounded Adaptive RAG
 
-**Bounded AI Execution Engine** is a production-oriented backend system designed to run LLM and Retrieval-Augmented Generation (RAG) workloads under strict cost, latency, and execution constraints.
+A production-grade, cost-bounded, profile-driven Retrieval-Augmented Generation (RAG) system designed for high concurrency and multi-tenant SaaS workloads.
 
-Modern AI applications often suffer from unpredictable costs, slow responses, and uncontrolled retrieval depth. This system introduces deterministic and bounded execution to ensure every request stays within predefined limits while delivering the best possible output.
+This repository implements a deterministic execution engine with bounded adaptivity, strict cost and latency contracts, offline evaluation loops, and infrastructure-level reliability guarantees.
 
-It is built as an internal AI infrastructure layer that other applications and services can integrate with via API.
+The system is designed to scale to lakhs of users while maintaining predictable behavior under load.
 
 ---
 
 ## Problem Statement
 
-AI applications at scale face several reliability and cost challenges:
+Naive RAG systems fail at scale due to:
 
-* Unpredictable LLM usage costs
-* Latency spikes during heavy retrieval or long context usage
-* Unbounded RAG pipelines with uncontrolled context growth
-* Lack of per-request cost and latency guarantees
-* Limited observability into token usage and execution behavior
+* Unbounded token usage
+* Latency unpredictability
+* Non-deterministic execution paths
+* Runtime heuristic chaos
+* Lack of replayability
+* No cost governance
 
-These issues make AI systems difficult to scale and operate in production environments.
+This system addresses those issues by separating:
 
----
+* **Control plane (decision-making)**
+* **Data plane (deterministic execution)**
+* **Offline intelligence (evaluation and learning)**
 
-## Solution
-
-This project implements a bounded execution engine that ensures:
-
-* Every request operates within defined cost and latency budgets
-* Retrieval depth and context size are strictly controlled
-* Model usage is optimized for predictable behavior
-* Execution is deterministic and configurable
-* Full observability into cost, latency, and usage metrics
-
-The system dynamically adapts its behavior based on constraints to produce the best possible response without violating defined limits.
+Adaptivity is allowed. Chaos is not.
 
 ---
 
-## Core Concept
+## Architectural Principles
 
-> Generate the highest quality response possible without exceeding predefined cost and latency budgets.
-
-Instead of maximizing raw intelligence, the system prioritizes predictability, reliability, and operational safety.
+1. Single execution path
+2. Deterministic runtime execution
+3. Discrete execution profiles
+4. Hard cost and latency bounds
+5. Offline-only learning
+6. Immutable execution configuration
+7. Full request traceability
+8. Production-first reliability
 
 ---
 
-## Key Features
+## System Architecture
 
-### Bounded Execution
+### Runtime Flow
 
-* Per-request cost limits
-* Latency ceilings
-* Token usage control
-* Deterministic execution paths
+```
+Client
+  → API Layer
+  → Orchestration (control plane)
+  → Base Retrieval (signal extraction)
+  → Profile Selection
+  → Budget Gate (hard constraint)
+  → Freeze Execution Config
+  → Execution Engine (data plane)
+      → Retrieval (bucketed)
+      → Context Construction
+      → Model Gateway
+  → Response + Caching
+  → Logging & Metrics
+```
 
-### Cost Control
+The runtime does not invent behavior.
+It selects from pre-validated execution profiles.
 
-* Token usage tracking
-* Cost per request logging
-* Model selection based on budget
-* Budget enforcement logic
+---
 
-### Latency Control
+## Core Components
 
+### API / Interface Layer
+
+* Versioned endpoints
+* Request validation
+* Rate limiting
+* Correlation ID propagation
+* Structured error contracts
+
+### Orchestration Layer
+
+* Single deterministic execution flow
+* Budget initialization
+* Signal extraction
+* Profile selection
+* Immutable execution config generation
+
+### Model Gateway
+
+* Multi-provider abstraction
+* Token bounding
 * Timeout enforcement
-* Retrieval depth control
-* Response time tracking
+* Retry normalization
+* Cost attribution
 
-### Retrieval-Augmented Generation (RAG)
+### Retrieval / Knowledge Layer
 
-* Bounded document retrieval
-* Context size control
-* Configurable retrieval depth
-* Embedding and indexing pipeline
+* Deterministic chunking
+* Versioned embeddings
+* Hybrid search
+* Bucketed retrieval depth
+* Controlled reranking
 
-### Observability
+### Execution Engine
 
-* Latency per stage
-* Cost per request
-* Token usage metrics
-* Execution logs
+* Pure config-driven execution
+* No runtime heuristics
+* Replayable behavior
+* Context isolation per request
 
-### Configurable Execution Profiles
+### Cost Tracking & Budgeting
 
-* Cheap / fast mode
-* Balanced mode
-* High quality mode
-* Fully configurable limits
+* Token accounting
+* Cost per request calculation
+* MAX_COST enforcement
+* Profile-level cost contracts
+
+### Observability & Telemetry
+
+* Structured logging
+* Trace spans
+* Per-step latency metrics
+* Cost metrics
+* Error rate monitoring
+
+### Reliability & Resilience
+
+* Timeouts on all external calls
+* Bounded retries
+* Circuit breakers
+* Fallback profiles
+* Graceful degradation
+
+### Caching Layer
+
+* Retrieval cache
+* Response cache
+* Embedding cache (optional)
+* Cache hit metrics
+
+### Evaluation Layer (Offline)
+
+* Baseline vs profile comparison
+* Regression detection
+* Dataset versioning
+* Quality metrics storage
+
+### Feedback & Learning
+
+* Profile labeling
+* Offline model training
+* Shadow deployment for ML selector
+
+### Multi-Tenant & Business Layer
+
+* Tenant isolation
+* Per-tenant quotas
+* Usage metering
+* Billing integration
+
+### Deployment & Infrastructure
+
+* Containerized services
+* Environment isolation
+* CI/CD pipeline
+* Rollback support
+* Autoscaling
+* Monitoring & alerting
 
 ---
 
-## Architecture Overview
+## Execution Profiles
+
+Adaptivity is implemented through discrete execution profiles.
+
+Each profile defines:
+
+* Retrieval depth (K)
+* Rerank depth (R)
+* Context size (C)
+
+Profiles are:
+
+* Immutable
+* Versioned
+* Evaluated offline
+* Associated with cost and latency contracts
+
+Runtime selection is bounded by:
 
 ```
-Client Application
-       │
-       ▼
-API / Interface Layer
-       │
-       ▼
-Orchestration Layer (budget & decision engine)
-       │
-       ▼
-Execution Engine (deterministic pipeline)
-       │
- ┌───────────────┬────────────────┐
- ▼               ▼                ▼
-Model Gateway   Retrieval Layer   Config System
-       │
-       ▼
-Response
-       │
-       ▼
-Observability & Cost Tracking
+total_cost ≤ MAX_COST
+total_latency ≤ MAX_LATENCY
 ```
 
-### Supporting Systems
-
-* Storage layer (PostgreSQL)
-* Caching layer (Redis)
-* Async ingestion pipeline
-* Metrics and analytics
-* Deployment infrastructure
+Budget enforcement cannot be bypassed.
 
 ---
 
-## Technology Stack
+## Control Plane vs Data Plane
 
-**Backend**
+### Control Plane
+
+* Signal extraction
+* Profile selection
+* Budget enforcement
+* Config freezing
+
+### Data Plane
+
+* Deterministic retrieval
+* Context construction
+* Model invocation
+* Response generation
+
+No decision-making occurs in the data plane.
+
+---
+
+## Scaling Strategy
+
+Designed for high concurrency and multi-tenant workloads:
+
+* Connection pooling
+* Per-tenant rate limiting
+* Redis-based caching
+* Async ingestion queues
+* Background workers
+* Horizontal scaling
+* Cost anomaly detection
+* Latency alerting
+
+---
+
+## Offline Intelligence Loop
+
+1. Log runtime signals and outcomes
+2. Evaluate profiles against baseline
+3. Label optimal profile per query
+4. Train profile selector
+5. Deploy in shadow mode
+6. Promote only after regression validation
+
+Learning never modifies runtime behavior directly.
+
+---
+
+## Technology Stack (Representative)
 
 * Python
 * FastAPI
-
-**AI Integration**
-
-* OpenAI / LLM APIs
-* Embeddings
-* Vector database (pgvector/Chroma)
-
-**Data & Storage**
-
 * PostgreSQL
-* Redis (caching & queues)
-
-**Infrastructure**
-
+* Redis
+* Vector DB (pgvector / Pinecone / Weaviate)
+* OpenTelemetry
 * Docker
-* Cloud deployment (Render/Railway/VPS)
+* Cloud deployment (AWS / GCP / Azure)
+* CI/CD (GitHub Actions)
 
 ---
 
-## Use Cases
+## Production Readiness Guarantees
 
-### AI SaaS Applications
+The system enforces:
 
-Provide predictable cost and latency for AI-driven features.
-
-### Internal Company AI Systems
-
-Run knowledge assistants and automation tools within strict budgets.
-
-### Developer AI Platforms
-
-Offer controlled AI execution as an internal or external service.
-
----
-
-## Example Request Flow
-
-1. Client sends request with query and constraints
-2. Orchestrator selects execution profile
-3. Retrieval depth determined within limits
-4. Model gateway executes within token and cost budget
-5. Response returned with metrics logged
+* Deterministic execution
+* Replayable requests
+* Cost ceilings
+* Latency ceilings
+* No hidden heuristics
+* Safe degradation under failure
+* Controlled experimentation
+* Backward-compatible evolution
 
 ---
-
-## Project Goals
-
-* Build production-ready AI infrastructure
-* Ensure predictable AI behavior at scale
-* Enable cost-aware and latency-aware execution
-* Provide full observability into AI usage
-* Maintain modular, extensible architecture
-
----
-
-## Development Roadmap
-
-**Phase 1**
-
-* Core API and execution engine
-* Model gateway and logging
-* Basic deployment
-
-**Phase 2**
-
-* Configurable execution profiles
-* Budget enforcement logic
-* Improved observability
-
-**Phase 3**
-
-* Bounded RAG system
-* Async ingestion pipeline
-* Caching and reliability
-
-**Phase 4**
-
-* Usage tracking and quotas
-* Evaluation and analytics
-* Production-grade deployment
-
----
-
-## Status
-
-Currently under active development as a production-oriented internal AI infrastructure system.
-
----
-
-## License
-
-MIT License
-
----
-
-## Author
-
-Built as a production-grade AI infrastructure project focusing on reliability, cost control, and scalable system design.
